@@ -20,11 +20,9 @@ func TestPathTransformFunc(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	ops := StoreOps{
-		PathTransformFunc: CASPathTransformFunc,
-	}
+	s := newStore()
+	defer teardown(t, s)
 
-	s := NewStore(ops)
 	key := "myspecialpicture"
 	data := []byte("some jpg bytes")
 
@@ -47,6 +45,20 @@ func TestStore(t *testing.T) {
 	}
 
 	if err := s.Delete(key); err != nil {
+		t.Error(err)
+	}
+}
+
+func newStore() *Store {
+	ops := StoreOps{
+		PathTransformFunc: CASPathTransformFunc,
+	}
+
+	return NewStore(ops)
+}
+
+func teardown(t *testing.T, s *Store) {
+	if err := s.Clear(); err != nil {
 		t.Error(err)
 	}
 }
